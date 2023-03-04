@@ -14,9 +14,6 @@ pylint = "*"
 pytest-cov = "*"
 
 [tool.poetry.scripts]
-# Add your script(s) here
-
-[tool.poetry.scripts]
 life_expectancy = "*"
 
 [tool.coverage.run]
