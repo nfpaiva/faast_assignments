@@ -3,6 +3,7 @@ This module provides a function to clean european life expectancy data files.
 """
 
 import re
+import argparse
 import pandas as pd
 
 # Define input and output file paths
@@ -11,9 +12,8 @@ OUTPUT_FILE_PATH = './life_expectancy/data/pt_life_expectancy.csv'
 
 # Define variables cleaning  and filtering data
 id_vars = ['unit', 'sex', 'age','region']
-REGION_FILTER='PT'
 
-def clean_data() -> None:
+def clean_data(region_filter: str) -> None:
     """
     This function processes and filters a file with european life expectancy data over the years.
 
@@ -38,10 +38,15 @@ def clean_data() -> None:
         df_final[df_final['value']!=': '].iloc[:,5].
             apply(lambda x: re.search(r'\d+(?:\.\d+)?',x).group())], axis=1)
     df_final.columns.values[4]='year'
-    df_final = df_final[(df_final['region']==REGION_FILTER)]
+    df_final = df_final[(df_final['region']==region_filter)]
 
     # Save cleaned data to output file
     df_final.to_csv(OUTPUT_FILE_PATH, index=False)
 
 if __name__ == '__main__':
-    clean_data()
+    parser = argparse.ArgumentParser(description='Clean European life expectancy data')
+    parser.add_argument('--region', type=str, default='PT',
+                        help='The region code to filter the data by (default: PT)')
+    args = parser.parse_args()
+
+    clean_data(args.region)
