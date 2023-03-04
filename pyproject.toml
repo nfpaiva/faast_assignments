@@ -1,4 +1,4 @@
-[project]
+[tool.poetry]
 name = "assignments"
 version = "0.0.1"
 readme = "README.md"
@@ -9,10 +9,10 @@ authors = [
 ]
 dependencies = ["pandas"]
 
-[project.optional-dependencies]
+[tool.poetry.project.optional-dependencies]
 dev = ["pytest", "pylint", "pytest-cov"]
 
-[tool.setuptools]
+[tool.poetry.setuptools]
 packages = ["life_expectancy"]
 
 [tool.coverage.run]
