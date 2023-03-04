@@ -1,34 +1,30 @@
-name: Lint and Test
-
+name: Pytest and Pylint
 on: [push, pull_request]
-   
-jobs:
-  pylint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          pip install poetry
-          poetry install --no-root
-      - name: Run PyLint
-        run: pylint life_expectancy
 
-  pytest:
+jobs:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          pip install poetry
-          poetry install --no-root
-      - name: Run Pytest
-        run: pytest life_expectancy
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install pipenv
+      run: |
+        pip install pipenv
+
+    - name: Install dependencies
+      run: |
+        pipenv install --dev
+
+    - name: Run pylint
+      run: |
+        pipenv run pylint life_expectancy
+          
+    - name: Run pytest
+      run: |
+        pipenv run pytest life_expectancy tests/
