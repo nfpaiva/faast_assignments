@@ -1,19 +1,23 @@
 [tool.poetry]
 name = "assignments"
 version = "0.0.1"
-readme = "README.md"
-requires-python = ">=3.8"
 description = "First assignment of the FAAST Advance Foundations"
-authors = [
-    {name = "Fernando Cordeiro<fernando@daredata.engineering>"}
-]
-dependencies = ["pandas"]
+authors = ["Fernando Cordeiro<fernando@daredata.engineering>"]
 
-[tool.poetry.project.optional-dependencies]
-dev = ["pytest", "pylint", "pytest-cov"]
+[tool.poetry.dependencies]
+python = ">=3.8"
+pandas = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pylint = "*"
+pytest-cov = "*"
+
+[tool.poetry.scripts]
+# Add your script(s) here
 
 [tool.poetry.setuptools]
-packages = ["life_expectancy"]
+life_expectancy = "*"
 
 [tool.coverage.run]
 omit = [
