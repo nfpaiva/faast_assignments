@@ -14,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install poetry
-          poetry install --no-root --dev
+          poetry install --no-root
       - name: Run PyLint
         run: pylint life_expectancy
 
@@ -29,6 +29,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install poetry
-          poetry install --no-root --dev
+          poetry install --no-root
       - name: Run Pytest
         run: pytest life_expectancy
