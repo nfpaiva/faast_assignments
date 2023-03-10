@@ -43,7 +43,7 @@ def clean_data(region_filter: str) -> None:
     # Save cleaned data to output file
     df_final.to_csv(OUTPUT_FILE_PATH, index=False)
 
-if __name__ == '__main__':
+if __name__ == '__main__':# pragma: no cover
     parser = argparse.ArgumentParser(description='Clean European life expectancy data')
     parser.add_argument('--region', type=str, default='PT',
                         help='The region code to filter the data by (default: PT)')
