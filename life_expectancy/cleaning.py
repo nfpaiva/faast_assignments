@@ -32,18 +32,23 @@ def clean_data(region_filter: str) -> None:
     # load data
     df_raw = pd.read_csv(INPUT_FILE_PATH)
 
-    # Split column that has region and years data into separate columns
-    df_geoyears_cols=df_raw.iloc[:,3].str.split('\t', expand=True)
-    df_geoyears_cols.columns=df_raw.columns[3].split('\t')
-    df_final=pd.concat([df_raw.iloc[:,0:3],df_geoyears_cols], axis=1)
-    df_final.columns.values[3]='region'
+    # get name of 3rd column that has region and years data
+    col_geo_years = df_raw.columns[3]
+
+    # Split into separate columns region and years
+    df_geoyears_cols=df_raw[col_geo_years].str.split('\t', expand=True)
+    df_geoyears_cols.columns=df_raw.columns[df_raw.columns.get_loc(col_geo_years)].split('\t')
+    df_final=pd.concat([df_raw[['unit','sex','age']],df_geoyears_cols], axis=1)
+    df_final.columns.values[df_final.columns.get_loc('geo\\time')]='region'
 
     # Transform data into long format, filter out missings and region
-    df_final = pd.melt(df_final,id_vars=id_vars)
-    df_final = pd.concat([df_final[df_final['value']!=': '].iloc[:,:5],
-        df_final[df_final['value']!=': '].iloc[:,5].
-            apply(lambda x: re.search(r'\d+(?:\.\d+)?',x).group())], axis=1)
-    df_final.columns.values[4]='year'
+    df_final = pd.melt(df_final,id_vars=id_vars, var_name='year')
+    # df_final.columns.values[df_final.columns.get_loc('variable')]='year'
+    df_final = pd.concat([df_final[df_final['value']!=': '][id_vars + ['year']],
+                          df_final[df_final['value']!=': ']['value'].
+                          apply(lambda x: re.search(r'\d+(?:\.\d+)?',x).group())]
+                          ,axis=1)
+
     df_final = df_final[(df_final['region']==region_filter)]
 
     # Save cleaned data to output file
