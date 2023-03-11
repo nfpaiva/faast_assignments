@@ -2,13 +2,19 @@
 This module provides a function to clean european life expectancy data files.
 """
 
+from pathlib import Path
 import re
 import argparse
 import pandas as pd
 
-# Define input and output file paths
-INPUT_FILE_PATH = './life_expectancy/data/eu_life_expectancy_raw.tsv'
-OUTPUT_FILE_PATH = './life_expectancy/data/pt_life_expectancy.csv'
+
+# Get absolute path of this file and its directory path
+FILE_PATH = Path(__file__).resolve()
+BASE_PATH = FILE_PATH.parent
+
+# Define input and output file paths relative to base path
+INPUT_FILE_PATH = BASE_PATH / 'data' / 'eu_life_expectancy_raw.tsv'
+OUTPUT_FILE_PATH = BASE_PATH  / 'data' / 'pt_life_expectancy.csv'
 
 # Define variables cleaning  and filtering data
 id_vars = ['unit', 'sex', 'age','region']
