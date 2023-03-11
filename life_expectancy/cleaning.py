@@ -4,8 +4,11 @@ This module provides a function to clean european life expectancy data files.
 
 from pathlib import Path
 import argparse
+import logging
 import pandas as pd
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 # Get absolute path of this file and its directory path
 FILE_PATH = Path(__file__).resolve()
@@ -30,9 +33,10 @@ def clean_data(region_filter: str) -> None:
     """
     try:
         # load data
-        df_raw = pd.read_csv(INPUT_FILE_PATH)
+        with open(INPUT_FILE_PATH, encoding='utf-8') as filename:
+            df_raw = pd.read_csv(filename, sep=',', na_values=[':'])
     except FileNotFoundError:
-        print(f"ERROR: Input file {INPUT_FILE_PATH} not found.")
+        logging.error("Input file %s not found.", INPUT_FILE_PATH)
         return
 
     # get name of 3rd column that has region and years data
@@ -47,7 +51,7 @@ def clean_data(region_filter: str) -> None:
     # Transform data into long format, filter out missings and region
     df_final = pd.melt(df_final,id_vars=id_vars, var_name='year')
     df_final['value'] = df_final['value'].str.extract(r'(\d+(?:\.\d+)?)', expand=False)
-    df_final = df_final[df_final['value'].notna()]
+    df_final = df_final.query("region == @region_filter and value.notna()")
 
     df_final = df_final[(df_final['region']==region_filter)]
 
@@ -59,10 +63,10 @@ def clean_data(region_filter: str) -> None:
         # Save cleaned data to output file
         df_final.to_csv(OUTPUT_FILE_PATH, index=False)
     except PermissionError:
-        print(f"ERROR: Output file {OUTPUT_FILE_PATH} could not be created or written to.")
+        logging.error("Output file %s could not be created or written to.", OUTPUT_FILE_PATH)
         return
 
-    print(f"Successfully cleaned data for region {region_filter}.")
+    logging.info("Successfully cleaned data for region %s.",region_filter)
 
 
 if __name__ == '__main__':# pragma: no cover
