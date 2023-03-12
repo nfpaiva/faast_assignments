@@ -37,13 +37,13 @@ def load_data (input_file_path: Path = INPUT_FILE_PATH) -> pd.DataFrame:
         # load data
         with open(input_file_path, encoding='utf-8') as filename:
             df_raw = pd.read_csv(filename, sep='\t', na_values=[':'])
-    except PermissionError:
+    except PermissionError:# pragma: no cover
         logging.error("Permission denied to read %s.", input_file_path)
         return None
-    except FileNotFoundError as error:
+    except FileNotFoundError as error:# pragma: no cover
         logging.error(str(error))
         return None
-    except pd.errors.ParserError as error:
+    except pd.errors.ParserError as error:# pragma: no cover
         logging.error("Error reading file %s: %s", input_file_path, error)
         return None
     return df_raw
@@ -59,12 +59,12 @@ def __convert_datatypes(dataframe: pd.DataFrame,
                 dataframe[col] = pd.to_numeric(dataframe[col]\
                                                 .str.extract(r'(\d+(?:\.\d+)?)',
                                                             expand=False), errors='raise')
-            except ValueError as error:
+            except ValueError as error:# pragma: no cover
                 logging.error("Datatype conversion error %s", error)
         else:
             try:
                 dataframe[col] = dataframe[col].astype(dtype=dtype, errors='raise')
-            except ValueError as error:
+            except ValueError as error:# pragma: no cover
                 logging.error("Datatype conversion error %s", error)
     return dataframe
 
