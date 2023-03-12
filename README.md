@@ -1,3 +1,5 @@
+[![Pylint](https://github.com/nfpaiva/faast_assignments/actions/workflows/lint_test.yml/badge.svg)](https://github.com/nfpaiva/faast_assignments/actions/workflows/lint_test.yml)
+
 # FAAST Advance Foundations Assignments
 
 ## Introduction

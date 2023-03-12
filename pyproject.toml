@@ -10,7 +10,7 @@ authors = [
 dependencies = ["pandas"]
 
 [project.optional-dependencies]
-dev = ["pytest", "pylint", "pytest-cov", "pandas"]
+dev = ["pytest", "pylint", "pytest-cov", "mypy", "pandas", "pandas-stubs"]
 
 [tool.setuptools]
 packages = ["life_expectancy"]
