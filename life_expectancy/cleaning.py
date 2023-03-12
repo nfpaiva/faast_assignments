@@ -35,7 +35,7 @@ def clean_data(region_filter: str) -> None:
         # load data
         with open(INPUT_FILE_PATH, encoding='utf-8') as filename:
             df_raw = pd.read_csv(filename, sep=',', na_values=[':'])
-    except FileNotFoundError:
+    except FileNotFoundError:# pragma: no cover
         logging.error("Input file %s not found.", INPUT_FILE_PATH)
         return
 
@@ -62,7 +62,7 @@ def clean_data(region_filter: str) -> None:
     try:
         # Save cleaned data to output file
         df_final.to_csv(OUTPUT_FILE_PATH, index=False)
-    except PermissionError:
+    except PermissionError:# pragma: no cover
         logging.error("Output file %s could not be created or written to.", OUTPUT_FILE_PATH)
         return
 
