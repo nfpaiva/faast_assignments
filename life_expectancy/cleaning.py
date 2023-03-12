@@ -3,7 +3,6 @@ This module provides a function to clean european life expectancy data files.
 """
 
 from pathlib import Path
-from typing import List
 import argparse
 import logging
 import pandas as pd
@@ -50,24 +49,29 @@ def load_data (input_file_path: Path = INPUT_FILE_PATH) -> pd.DataFrame:
         return df_raw
     return df_raw
 
-def __convert_datatypes(dataframe: pd.DataFrame,
-                          cols_2_convert: List[str], dtype: str) -> pd.DataFrame:
+def __convert_datatypes(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
         This function iterates on each group of columns to convert to the determined data type
     """
-    for col in cols_2_convert:
-        if cols_2_convert == ['value']:
-            try:
-                dataframe[col] = pd.to_numeric(dataframe[col]\
+    #convert column data types explicitly
+    data_types = {
+        'unit': 'category',
+        'sex': 'category',
+        'age': 'category',
+        'region': 'category',
+        'year': 'int',
+        'value': 'object',
+    }
+    try:
+        dataframe = dataframe.astype(data_types)
+    except ValueError as error:# pragma: no cover
+        logging.error("Datatype conversion error %s", error)
+    try:
+        dataframe['value'] = pd.to_numeric(dataframe['value']\
                                                 .str.extract(r'(\d+(?:\.\d+)?)',
                                                             expand=False), errors='raise')
-            except ValueError as error:# pragma: no cover
-                logging.error("Datatype conversion error %s", error)
-        else:
-            try:
-                dataframe[col] = dataframe[col].astype(dtype=dtype, errors='raise')
-            except ValueError as error:# pragma: no cover
-                logging.error("Datatype conversion error %s", error)
+    except ValueError as error:# pragma: no cover
+        logging.error("Datatype conversion error %s", error)
     return dataframe
 
 def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
@@ -91,22 +95,8 @@ def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
     # Transform data into long format, filter out missings and region
     df_final = pd.melt(df_raw,id_vars=DECOMPOSED_COLs, var_name='year')
 
-    #convert column data types explicitly
-    data_types = {
-        'unit': 'str',
-        'sex': 'str',
-        'age': 'str',
-        'region': 'str',
-        'year': 'int',
-        'value': 'float64',
-    }
-
-    column_groups = {value: [key for key, val in data_types.items() if val == value]
-                 for value in set(data_types.values())}
-
-    for dtype, cols in column_groups.items():
-        df_final[cols] = __convert_datatypes(df_final.loc[:,cols], cols, dtype)
-
+    # Convert data types
+    df_final=__convert_datatypes(df_final)
     df_final = df_final[df_final['region'] ==  region_filter]
     df_final = df_final.dropna(subset=['value'])
 
