@@ -3,6 +3,7 @@ This module provides a function to clean european life expectancy data files.
 """
 
 from pathlib import Path
+from typing import List
 import argparse
 import logging
 import pandas as pd
@@ -19,7 +20,8 @@ INPUT_FILE_PATH = BASE_PATH / 'data' / 'eu_life_expectancy_raw.tsv'
 OUTPUT_FILE_PATH = BASE_PATH  / 'data' / 'pt_life_expectancy.csv'
 
 # Define variables cleaning  and filtering data
-id_vars = ['unit', 'sex', 'age','region']
+COMPOSED_COL = 'unit,sex,age,geo\\time'
+DECOMPOSED_COLs = ['unit', 'sex', 'age','region']
 
 def clean_data(region_filter: str) -> None:
     """
@@ -31,32 +33,60 @@ def clean_data(region_filter: str) -> None:
     Returns:
     Just saves the processed data for Portugal.
     """
+
     try:
         # load data
         with open(INPUT_FILE_PATH, encoding='utf-8') as filename:
-            df_raw = pd.read_csv(filename, sep=',', na_values=[':'])
+            df_raw = pd.read_csv(filename, sep='\t', na_values=[':'])
     except FileNotFoundError:# pragma: no cover
         logging.error("Input file %s not found.", INPUT_FILE_PATH)
         return
 
-    # get name of 3rd column that has region and years data
-    col_geo_years = df_raw.columns[3]
-
-    # Split into separate columns region and years
-    df_geoyears_cols=df_raw[col_geo_years].str.split('\t', expand=True)
-    df_geoyears_cols.columns=df_raw.columns[df_raw.columns.get_loc(col_geo_years)].split('\t')
-    df_final=pd.concat([df_raw[['unit','sex','age']],df_geoyears_cols], axis=1)
-    df_final.columns.values[df_final.columns.get_loc('geo\\time')]='region'
+    # Split first column into 4 columns
+    df_raw[DECOMPOSED_COLs]=df_raw[COMPOSED_COL].str.split(',', expand=True)
+    df_raw = df_raw.drop(columns=[COMPOSED_COL])
 
     # Transform data into long format, filter out missings and region
-    df_final = pd.melt(df_final,id_vars=id_vars, var_name='year')
-    df_final['value'] = df_final['value'].str.extract(r'(\d+(?:\.\d+)?)', expand=False)
+    df_final = pd.melt(df_raw,id_vars=DECOMPOSED_COLs, var_name='year')
+
+    data_types = {
+        'unit': 'str',
+        'sex': 'str',
+        'age': 'str',
+        'region': 'str',
+        'year': 'int',
+        'value': 'float64',
+    }
+
+    column_groups = {value: [key for key, val in data_types.items() if val == value]
+                 for value in set(data_types.values())}
+
+    def convert_datatypes(dataframe: pd.DataFrame,
+                          cols_2_convert: List[str], dtype: str) -> pd.DataFrame:
+        for col in cols_2_convert:
+            if cols_2_convert == ['value']:
+                try:
+                    dataframe[col] = pd.to_numeric(dataframe[col]\
+                                                   .str.extract(r'(\d+(?:\.\d+)?)',
+                                                                expand=False), errors='raise')
+                except ValueError as error:
+                    logging.error("Datatype conversion error %s", error)
+            else:
+                try:
+                    dataframe[col] = dataframe[col].astype(dtype=dtype, errors='raise')
+                except ValueError as error:
+                    logging.error("Datatype conversion error %s", error)
+        return dataframe
+
+    for dtype, cols in column_groups.items():
+        df_final[cols] = convert_datatypes(df_final.loc[:,cols], cols, dtype)
+
     df_final = df_final.query("region == @region_filter and value.notna()")
 
     df_final = df_final[(df_final['region']==region_filter)]
 
     if df_final.empty:# pragma: no cover
-        print(f"No data found for region {region_filter}")
+        logging.error("No data found for region %s", region_filter)
         return
 
     try:
