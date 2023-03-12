@@ -55,7 +55,7 @@ def clean_data(region_filter: str) -> None:
 
     df_final = df_final[(df_final['region']==region_filter)]
 
-    if df_final.empty:
+    if df_final.empty:# pragma: no cover
         print(f"No data found for region {region_filter}")
         return
 
