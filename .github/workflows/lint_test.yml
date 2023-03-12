@@ -26,4 +26,4 @@ jobs:
         pylint life_expectancy/cleaning.py
     - name: Testing the code with pytest
       run: |
-        pytest life_expectancy/ --cov
+        pytest --cov-report html --cov=life_expectancy
