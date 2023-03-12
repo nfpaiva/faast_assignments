@@ -33,19 +33,21 @@ def load_data (input_file_path: Path = INPUT_FILE_PATH) -> pd.DataFrame:
     Returns:
     df_raw (pd.DataFrame): The loaded data.
     """
+    df_raw = pd.DataFrame()  # define an empty DataFrame
+
     try:
         # load data
         with open(input_file_path, encoding='utf-8') as filename:
             df_raw = pd.read_csv(filename, sep='\t', na_values=[':'])
     except PermissionError:# pragma: no cover
         logging.error("Permission denied to read %s.", input_file_path)
-        return None
+        return df_raw
     except FileNotFoundError as error:# pragma: no cover
         logging.error(str(error))
-        return None
+        return df_raw
     except pd.errors.ParserError as error:# pragma: no cover
         logging.error("Error reading file %s: %s", input_file_path, error)
-        return None
+        return df_raw
     return df_raw
 
 def __convert_datatypes(dataframe: pd.DataFrame,
@@ -84,6 +86,8 @@ def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
     df_raw[DECOMPOSED_COLs]=df_raw[COMPOSED_COL].str.split(',', expand=True)
     df_raw = df_raw.drop(columns=[COMPOSED_COL])
 
+    df_final = pd.DataFrame()  # define an empty DataFrame
+
     # Transform data into long format, filter out missings and region
     df_final = pd.melt(df_raw,id_vars=DECOMPOSED_COLs, var_name='year')
 
@@ -110,11 +114,11 @@ def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
 
     if df_final.empty:# pragma: no cover
         logging.error("No data found for region %s", region_filter)
-        return None
+        return df_final
 
     return df_final
 
-def save_data(df_final: pd.DataFrame, output_file_path: str = OUTPUT_FILE_PATH ,
+def save_data(df_final: pd.DataFrame, output_file_path: Path = OUTPUT_FILE_PATH ,
               region_filter: str="") -> None:
     """
     This function saves the cleaned data to a file.
