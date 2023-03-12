@@ -49,6 +49,7 @@ def clean_data(region_filter: str) -> None:
     # Transform data into long format, filter out missings and region
     df_final = pd.melt(df_raw,id_vars=DECOMPOSED_COLs, var_name='year')
 
+    #convert column data types explicitly
     data_types = {
         'unit': 'str',
         'sex': 'str',
@@ -63,6 +64,9 @@ def clean_data(region_filter: str) -> None:
 
     def convert_datatypes(dataframe: pd.DataFrame,
                           cols_2_convert: List[str], dtype: str) -> pd.DataFrame:
+        """
+        This function iterates on each group of columns to convert to the determined data type
+    """
         for col in cols_2_convert:
             if cols_2_convert == ['value']:
                 try:
@@ -81,7 +85,8 @@ def clean_data(region_filter: str) -> None:
     for dtype, cols in column_groups.items():
         df_final[cols] = convert_datatypes(df_final.loc[:,cols], cols, dtype)
 
-    df_final = df_final.query("region == @region_filter and value.notna()")
+    df_final = df_final[df_final['region'] == region_filter]
+    df_final = df_final.dropna(subset=['value'])
 
     df_final = df_final[(df_final['region']==region_filter)]
 
