@@ -20,7 +20,7 @@ OUTPUT_FILE_PATH = BASE_PATH  / 'data' / 'pt_life_expectancy.csv'
 
 # Define variables cleaning  and filtering data
 COMPOSED_COL = 'unit,sex,age,geo\\time'
-DECOMPOSED_COLs = ['unit', 'sex', 'age','region']
+DECOMPOSED_COLS= ['unit', 'sex', 'age','region']
 
 def load_data (input_file_path: Path = INPUT_FILE_PATH) -> pd.DataFrame:
     """
@@ -53,19 +53,19 @@ def __convert_datatypes(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
         This function iterates on each group of columns to convert to the determined data type
     """
-    #convert column data types explicitly
+    #convert column data types explicitly all with exception of "value"
     data_types = {
         'unit': 'category',
         'sex': 'category',
         'age': 'category',
         'region': 'category',
-        'year': 'int',
-        'value': 'object',
+        'year': 'int'
     }
     try:
         dataframe = dataframe.astype(data_types)
     except ValueError as error:# pragma: no cover
         logging.error("Datatype conversion error %s", error)
+    #convert value column to numeric
     try:
         dataframe['value'] = pd.to_numeric(dataframe['value']\
                                                 .str.extract(r'(\d+(?:\.\d+)?)',
@@ -87,13 +87,13 @@ def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
     """
 
     # Split first column into 4 columns
-    df_raw[DECOMPOSED_COLs]=df_raw[COMPOSED_COL].str.split(',', expand=True)
+    df_raw[DECOMPOSED_COLS]=df_raw[COMPOSED_COL].str.split(',', expand=True)
     df_raw = df_raw.drop(columns=[COMPOSED_COL])
 
     df_final = pd.DataFrame()  # define an empty DataFrame
 
     # Transform data into long format, filter out missings and region
-    df_final = pd.melt(df_raw,id_vars=DECOMPOSED_COLs, var_name='year')
+    df_final = pd.melt(df_raw,id_vars=DECOMPOSED_COLS, var_name='year')
 
     # Convert data types
     df_final=__convert_datatypes(df_final)
