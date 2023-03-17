@@ -2,15 +2,15 @@
 name = "assignments"
 version = "0.0.1"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 description = "First assignment of the FAAST Advance Foundations"
 authors = [
-    {name = "Fernando Cordeiro<fernando@daredata.engineering>"}
+    {name = "Nuno Paiva<nuno.paiva@nos.pt>"}
 ]
 dependencies = ["pandas"]
 
 [project.optional-dependencies]
-dev = ["pytest", "pylint", "pytest-cov", "mypy", "pandas", "pandas-stubs"]
+dev = ["pytest", "pylint", "pytest-cov", "mypy", "isort", "pandas-stubs", "pre-commit"]
 
 [tool.setuptools]
 packages = ["life_expectancy"]
