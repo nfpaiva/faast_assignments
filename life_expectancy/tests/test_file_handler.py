@@ -2,9 +2,11 @@
 
 from unittest import mock
 import pandas as pd
+import pytest
 from life_expectancy.file_handler import load_data, save_data
 
 
+@pytest.mark.unit
 def test_load_date(eu_life_expectancy_raw_expected):
     """Run the `load_data` function and compare the output to the expected output"""
     eu_life_expectancy_raw = load_data(
@@ -15,6 +17,7 @@ def test_load_date(eu_life_expectancy_raw_expected):
     )
 
 
+@pytest.mark.unit
 @mock.patch("pandas.DataFrame.to_csv")
 def test_save_data(mock_to_csv, pt_life_expectancy_expected):
     """Run the `save_data` function and compare the output to the expected output"""
