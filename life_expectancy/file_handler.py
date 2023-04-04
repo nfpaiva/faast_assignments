@@ -32,6 +32,7 @@ def save_data(
     This function saves a cleaned and filtered version of
     original european life expectancy data over the years.
     """
+
     try:
         # Save cleaned data to output file
         df_final.to_csv(output_file_path, index=False)

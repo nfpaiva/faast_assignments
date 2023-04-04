@@ -4,12 +4,13 @@ This module is responsible to run the 3 steps of the project: loading, cleaning 
 
 from pathlib import Path
 import argparse
+import pandas as pd
 from life_expectancy.file_handler import load_data
 from life_expectancy.file_handler import save_data
 from life_expectancy.data_cleaning import clean_data
 
 
-def main(country: str) -> None:
+def main(country: str) -> pd.DataFrame:
     """
     Main function responsible for executing the 3 steps -
     loading, cleaning and saving
@@ -28,6 +29,8 @@ def main(country: str) -> None:
     df_final = clean_data(df_raw, country)
 
     save_data(df_final, OUTPUT_FILE_PATH, country)
+
+    return df_final
 
 
 if __name__ == "__main__":  # pragma: no cover
