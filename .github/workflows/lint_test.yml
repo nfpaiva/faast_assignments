@@ -23,7 +23,7 @@ jobs:
     #     mypy life_expectancy/cleaning.py
     - name: Analysing the code with pylint
       run: |
-        pylint life_expectancy/cleaning.py
+        pylint life_expectancy/
     - name: Testing the code with pytest
       run: |
         pytest --cov-report html --cov=life_expectancy
