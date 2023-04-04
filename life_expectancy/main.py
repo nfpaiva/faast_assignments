@@ -29,8 +29,6 @@ def main(country: str) -> None:
 
     save_data(df_final, OUTPUT_FILE_PATH, country)
 
-    return df_final
-
 
 if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Clean European life expectancy data")
