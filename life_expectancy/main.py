@@ -10,9 +10,9 @@ from life_expectancy.file_handler import save_data
 from life_expectancy.data_cleaning import clean_data
 
 
-def main(country: str) -> pd.DataFrame:
+def loading_cleaning_saving(country: str) -> pd.DataFrame:
     """
-    Main function responsible for executing the 3 steps -
+    loading_cleaning_saving function responsible for executing the 3 steps -
     loading, cleaning and saving
     """
 
@@ -43,4 +43,4 @@ if __name__ == "__main__":  # pragma: no cover
     )
     args = parser.parse_args()
 
-    main(args.region)
+    loading_cleaning_saving(args.region)

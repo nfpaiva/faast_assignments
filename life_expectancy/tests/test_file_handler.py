@@ -4,13 +4,14 @@ from unittest import mock
 import pandas as pd
 import pytest
 from life_expectancy.file_handler import load_data, save_data
+from . import FIXTURES_DIR
 
 
 @pytest.mark.unit
 def test_load_date(eu_life_expectancy_raw_expected):
     """Run the `load_data` function and compare the output to the expected output"""
     eu_life_expectancy_raw = load_data(
-        input_file_path="life_expectancy/data/eu_life_expectancy_raw.tsv"
+        input_file_path=FIXTURES_DIR / "eu_life_expectancy_raw.tsv"
     )
     pd.testing.assert_frame_equal(
         eu_life_expectancy_raw_expected, eu_life_expectancy_raw
