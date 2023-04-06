@@ -1,7 +1,6 @@
 """Pytest configuration file"""
 import pandas as pd
 import pytest
-
 from . import FIXTURES_DIR, OUTPUT_DIR
 
 
