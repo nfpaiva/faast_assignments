@@ -1,5 +1,6 @@
 """Tests for the main module."""
 from unittest import mock
+import pandas as pd
 from life_expectancy.main import loading_cleaning_saving
 
 
@@ -14,13 +15,16 @@ def test_loading_cleaning_saving(
     eu_life_expectancy_raw_expected,
 ):
     """Test loading_cleaning_saving function."""
-    mock_load_data.return_value = eu_life_expectancy_raw_expected
+    mock_load_data.return_value = (
+        eu_life_expectancy_raw_expected  # Specify return value
+    )
     mock_clean_data.return_value = pt_life_expectancy_expected
 
     result = loading_cleaning_saving("PT")
 
-    mock_load_data.assert_called_once()
-    mock_clean_data.assert_called_once()
-    mock_save_data.assert_called_once()
+    mock_load_data.assert_called_once_with(mock.ANY)
+    mock_clean_data.assert_called_once_with(eu_life_expectancy_raw_expected, "PT")
+    mock_save_data.assert_called_once_with(pt_life_expectancy_expected, mock.ANY, "PT")
 
-    assert result.equals(pt_life_expectancy_expected)
+    assert isinstance(result, pd.DataFrame)
+    pd.testing.assert_frame_equal(result, pt_life_expectancy_expected)
