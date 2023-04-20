@@ -18,9 +18,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    # - name: Analysing type-checking with mypy
-    #   run: |
-    #     mypy life_expectancy/
+    - name: Analysing type-checking with mypy
+      run: |
+        mypy life_expectancy/
     - name: Analysing the code with pylint
       run: |
         pylint life_expectancy/
