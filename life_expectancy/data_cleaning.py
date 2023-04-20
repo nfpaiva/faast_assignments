@@ -11,6 +11,12 @@ COMPOSED_COL = "unit,sex,age,geo\\time"
 DECOMPOSED_COLs = ["unit", "sex", "age", "region"]
 
 
+class NoDataException(Exception):
+    """Class:
+    NoDataException: Exception raised when no data is found for a given region
+    """
+
+
 def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
     """
     This function processes and filters a dataframe
@@ -62,7 +68,9 @@ def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
                     logging.error("Datatype conversion error %s", error)
             else:
                 try:
-                    dataframe[col] = dataframe[col].astype(dtype=dtype, errors="raise")
+                    dataframe[col] = dataframe[col].astype(
+                        dtype=dtype, errors="raise"
+                    )  # type: ignore
                 except ValueError as error:
                     logging.error("Datatype conversion error %s", error)
         return dataframe
@@ -76,7 +84,7 @@ def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
     df_final = df_final[(df_final["region"] == region_filter)]
 
     if df_final.empty:  # pragma: no cover
-        logging.error("No data found for region %s", region_filter)
-    else:
-        logging.info("Successfully cleaned data for region== %s", region_filter)
-        return df_final.reset_index(drop=True)
+        raise NoDataException(f"No data found for region {region_filter}")
+
+    logging.info("Successfully cleaned data for region== %s", region_filter)
+    return df_final.reset_index(drop=True)
