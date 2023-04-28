@@ -1,13 +1,10 @@
-"""
-This module is responsible to run the 3 steps of the project: loading, cleaning and saving data.
-"""
+""" Main module for the life_expectancy package """
 
 from pathlib import Path
 import argparse
 import pandas as pd
-from life_expectancy.file_handler import load_data
-from life_expectancy.file_handler import save_data
-from life_expectancy.data_cleaning import clean_data
+from life_expectancy.file_handler import FileHandler
+from life_expectancy.data_cleaning import DataCleaner
 
 
 def loading_cleaning_saving(country: str) -> pd.DataFrame:
@@ -24,11 +21,13 @@ def loading_cleaning_saving(country: str) -> pd.DataFrame:
     INPUT_FILE_PATH = BASE_PATH / "data" / "eu_life_expectancy_raw.tsv"
     OUTPUT_FILE_PATH = BASE_PATH / "data" / "pt_life_expectancy.csv"
 
-    df_raw = load_data(INPUT_FILE_PATH)
+    filehandler = FileHandler()
+    df_raw = filehandler.load_data(INPUT_FILE_PATH)
 
-    df_final = clean_data(df_raw, country)
+    cleaner = DataCleaner()
+    df_final = cleaner.clean_data(df_raw, country)
 
-    save_data(df_final, OUTPUT_FILE_PATH, country)
+    filehandler.save_data(df_final, OUTPUT_FILE_PATH, country)
 
     return df_final
 

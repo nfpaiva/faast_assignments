@@ -1,90 +1,97 @@
 """
-This module provides a function to clean european life expectancy data files.
+This module provides a class to clean european life expectancy data files.
 """
 from typing import List
 import logging
 import pandas as pd
 
 
-# Define variables cleaning  and filtering data
-COMPOSED_COL = "unit,sex,age,geo\\time"
-DECOMPOSED_COLs = ["unit", "sex", "age", "region"]
-
-
-class NoDataException(Exception):
+class DataCleaner:
     """Class:
-    NoDataException: Exception raised when no data is found for a given region
+    DataCleaner: Class responsible for cleaning european life expectancy data files.
     """
 
+    # Define variables cleaning  and filtering data
+    COMPOSED_COL = "unit,sex,age,geo\\time"
+    DECOMPOSED_COLs = ["unit", "sex", "age", "region"]
 
-def clean_data(df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
-    """
-    This function processes and filters a dataframe
-    with european life expectancy data over the years.
-
-    Parameters:
-    None
-
-    Returns:
-    Just saves the processed data for Portugal and returns also pd dataframe for test fixtures
-    """
-    df_raw = df_raw.copy()
-    # Split first column into 4 columns
-    df_raw[DECOMPOSED_COLs] = df_raw[COMPOSED_COL].str.split(",", expand=True)
-    df_raw = df_raw.drop(columns=[COMPOSED_COL])
-
-    # Transform data into long format, filter out missings and region
-    df_final = pd.melt(df_raw, id_vars=DECOMPOSED_COLs, var_name="year")
-
-    # convert column data types explicitly
-    data_types = {
-        "unit": "str",
-        "sex": "str",
-        "age": "str",
-        "region": "str",
-        "year": "int",
-        "value": "float64",
-    }
-
-    column_groups = {
-        value: [key for key, val in data_types.items() if val == value]
-        for value in set(data_types.values())
-    }
-
-    def convert_datatypes(
-        dataframe: pd.DataFrame, cols_2_convert: List[str], dtype: str
-    ) -> pd.DataFrame:
+    class NoDataException(Exception):
+        """Class:
+        NoDataException: Exception raised when no data is found for a given region
         """
-        This function iterates on each group of columns to convert to the determined data type
+
+    def clean_data(self, df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
         """
-        for col in cols_2_convert:
-            if cols_2_convert == ["value"]:
-                try:
-                    dataframe[col] = pd.to_numeric(
-                        dataframe[col].str.extract(r"(\d+(?:\.\d+)?)", expand=False),
-                        errors="raise",
-                    )
-                except ValueError as error:
-                    logging.error("Datatype conversion error %s", error)
-            else:
-                try:
-                    dataframe[col] = dataframe[col].astype(
-                        dtype=dtype, errors="raise"
-                    )  # type: ignore
-                except ValueError as error:
-                    logging.error("Datatype conversion error %s", error)
-        return dataframe
+        This function processes and filters a dataframe
+        with european life expectancy data over the years.
 
-    for dtype, cols in column_groups.items():
-        df_final[cols] = convert_datatypes(df_final.loc[:, cols], cols, dtype)
+        Parameters:
+        None
 
-    df_final = df_final[df_final["region"] == region_filter]
-    df_final = df_final.dropna(subset=["value"])
+        Returns:
+        Just saves the processed data for Portugal and returns also pd dataframe for test fixtures
+        """
+        df_raw = df_raw.copy()
+        # Split first column into 4 columns
+        df_raw[self.DECOMPOSED_COLs] = df_raw[self.COMPOSED_COL].str.split(
+            ",", expand=True
+        )
+        df_raw = df_raw.drop(columns=[self.COMPOSED_COL])
 
-    df_final = df_final[(df_final["region"] == region_filter)]
+        # Transform data into long format, filter out missings and region
+        df_final = pd.melt(df_raw, id_vars=self.DECOMPOSED_COLs, var_name="year")
 
-    if df_final.empty:  # pragma: no cover
-        raise NoDataException(f"No data found for region {region_filter}")
+        # convert column data types explicitly
+        data_types = {
+            "unit": "str",
+            "sex": "str",
+            "age": "str",
+            "region": "str",
+            "year": "int",
+            "value": "float64",
+        }
 
-    logging.info("Successfully cleaned data for region== %s", region_filter)
-    return df_final.reset_index(drop=True)
+        column_groups = {
+            value: [key for key, val in data_types.items() if val == value]
+            for value in set(data_types.values())
+        }
+
+        def convert_datatypes(
+            dataframe: pd.DataFrame, cols_2_convert: List[str], dtype: str
+        ) -> pd.DataFrame:
+            """
+            This function iterates on each group of columns to convert to the determined data type
+            """
+            for col in cols_2_convert:
+                if cols_2_convert == ["value"]:
+                    try:
+                        dataframe[col] = pd.to_numeric(
+                            dataframe[col].str.extract(
+                                r"(\d+(?:\.\d+)?)", expand=False
+                            ),
+                            errors="raise",
+                        )
+                    except ValueError as error:
+                        logging.error("Datatype conversion error %s", error)
+                else:
+                    try:
+                        dataframe[col] = dataframe[col].astype(
+                            dtype=dtype, errors="raise"
+                        )  # type: ignore
+                    except ValueError as error:
+                        logging.error("Datatype conversion error %s", error)
+            return dataframe
+
+        for dtype, cols in column_groups.items():
+            df_final[cols] = convert_datatypes(df_final.loc[:, cols], cols, dtype)
+
+        df_final = df_final[df_final["region"] == region_filter]
+        df_final = df_final.dropna(subset=["value"])
+
+        df_final = df_final[(df_final["region"] == region_filter)]
+
+        if df_final.empty:  # pragma: no cover
+            raise self.NoDataException(f"No data found for region {region_filter}")
+
+        logging.info("Successfully cleaned data for region== %s", region_filter)
+        return df_final.reset_index(drop=True)

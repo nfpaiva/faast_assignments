@@ -4,9 +4,9 @@ import pandas as pd
 from life_expectancy.main import loading_cleaning_saving
 
 
-@mock.patch("life_expectancy.main.load_data")
-@mock.patch("life_expectancy.main.clean_data")
-@mock.patch("life_expectancy.main.save_data")
+@mock.patch("life_expectancy.main.FileHandler.load_data")
+@mock.patch("life_expectancy.main.DataCleaner.clean_data")
+@mock.patch("life_expectancy.main.FileHandler.save_data")
 def test_loading_cleaning_saving(
     mock_save_data,
     mock_clean_data,
