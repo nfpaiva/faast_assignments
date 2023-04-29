@@ -4,6 +4,7 @@ from typing import List
 import logging
 from abc import ABC, abstractmethod
 import pandas as pd
+from life_expectancy.region import Region
 
 
 class CleaningStrategy(ABC):
@@ -108,13 +109,16 @@ class DataCleaner:
         """Constructor for DataCleaner"""
         self.cleaning_strategy = cleaning_strategy
 
-    def clean_data(self, df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
+    def clean_data(self, df_raw: pd.DataFrame, region_filter: Region) -> pd.DataFrame:
         """This method cleans the raw data and filters by region"""
         df_cleaned = self.cleaning_strategy.clean(df_raw)
         return self.filter_by_region(df_cleaned, region_filter)
 
-    def filter_by_region(self, df: pd.DataFrame, region_filter: str) -> pd.DataFrame:
+    def filter_by_region(self, df: pd.DataFrame, region_filter: Region) -> pd.DataFrame:
         """This method filters the data by region and drops rows with missing values"""
-        df_filtered = df[df["region"] == region_filter]
+        df_filtered = df[df["region"] == region_filter.value]
+        print("**********")
+        print(region_filter.value)
+        print("**********")
         df_filtered = df_filtered.dropna(subset=["value"])
         return df_filtered.reset_index(drop=True)

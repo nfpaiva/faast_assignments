@@ -11,6 +11,7 @@ from life_expectancy.file_handler import (
     ZipFileLoadingStrategy,
     JSONFileLoadingStrategy,
 )
+from life_expectancy.region import Region
 from . import FIXTURES_DIR
 
 
@@ -51,7 +52,7 @@ def test_save_data(mock_to_csv, pt_life_expectancy_expected):
     """Run the `save_data` function and compare the output to the expected output"""
     filehandler = FileHandler()
     output_file_path = "life_expectancy/data/pt_life_expectancy.csv"
-    filehandler.save_data(pt_life_expectancy_expected, output_file_path, "PT")
+    filehandler.save_data(pt_life_expectancy_expected, output_file_path, Region.PT)
     mock_to_csv.assert_called_with(output_file_path, index=False)
 
 
@@ -126,7 +127,7 @@ def test_save_data_with_none_dataframe(mock_to_csv, caplog):
     filehandler = FileHandler()
     output_file_path = "life_expectancy/data/pt_life_expectancy.csv"
     df_final = None
-    filehandler.save_data(df_final, output_file_path, "PT")
+    filehandler.save_data(df_final, output_file_path, Region.PT)
     assert not mock_to_csv.called
     assert "The final dataframe is None. Nothing will be saved." in caplog.text
 
@@ -138,7 +139,7 @@ def test_save_data_with_permission_error(mock_to_csv, caplog):
     filehandler = FileHandler()
     output_file_path = "life_expectancy/data/pt_life_expectancy.csv"
     df_final = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6]})
-    filehandler.save_data(df_final, output_file_path, "PT")
+    filehandler.save_data(df_final, output_file_path, Region.PT)
     mock_to_csv.assert_called_once_with(output_file_path, index=False)
     assert "could not be created or written to." in caplog.text
 

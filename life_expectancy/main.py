@@ -15,10 +15,11 @@ from life_expectancy.data_cleaning import (
     CSVCleaningStrategy,
     JSONCleaningStrategy,
 )
+from life_expectancy.region import Region
 
 
 def loading_cleaning_saving(
-    country: str, input_file: Path, input_file_ext: str
+    country: Region, input_file: Path, input_file_ext: str
 ) -> pd.DataFrame:
     """
     loading_cleaning_saving function responsible for executing the 3 steps -
@@ -29,7 +30,9 @@ def loading_cleaning_saving(
     BASE_PATH = FILE_PATH.parent
 
     # Define output file path relative to base path
-    OUTPUT_FILE_PATH = BASE_PATH / "data" / f"{country.lower()}_life_expectancy.csv"
+    OUTPUT_FILE_PATH = (
+        BASE_PATH / "data" / f"{str(country).lower()}_life_expectancy.csv"
+    )
 
     # Choose the appropriate strategy based on the input file type
     if input_file_ext in (".csv", ".tsv"):
@@ -48,7 +51,7 @@ def loading_cleaning_saving(
 
     df_final = cleaner.clean_data(df_raw, country)
 
-    filehandler.save_data(df_final, OUTPUT_FILE_PATH, country)
+    filehandler.save_data(df_final, OUTPUT_FILE_PATH, country.value)
 
     return df_final
 
@@ -57,8 +60,8 @@ if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Clean European life expectancy data")
     parser.add_argument(
         "--region",
-        type=str,
-        default="PT",
+        type=Region,
+        default=Region.PT,
         help="The region code to filter the data by (default: PT)",
     )
     parser.add_argument(

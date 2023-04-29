@@ -1,0 +1,30 @@
+"""Module to represent different regions """
+import enum
+
+
+class Region(enum.Enum):
+    """Enum to represent different regions"""
+
+    PT = "PT"
+    ES = "ES"
+    FR = "FR"
+    DE = "DE"
+    IT = "IT"
+    BE = "BE"
+    NL = "NL"
+    LU = "LU"
+    UK = "UK"
+    IE = "IE"
+    DK = "DK"
+    SE = "SE"
+    FI = "FI"
+    EE = "EE"
+    LV = "LV"
+    LT = "LT"
+    PL = "PL"
+    CZ = "CZ"
+    SK = "SK"
+    HU = "HU"
+    SI = "SI"
+    AT = "AT"
+    CH = "CH"
