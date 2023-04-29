@@ -1,4 +1,5 @@
 """Pytest configuration file"""
+import json
 import pandas as pd
 import pytest
 from . import FIXTURES_DIR, OUTPUT_DIR
@@ -28,3 +29,35 @@ def eu_life_expectancy_raw_expected() -> pd.DataFrame:
     return pd.read_csv(
         FIXTURES_DIR / "eu_life_expectancy_raw.tsv", sep="\t", na_values=[":"]
     )
+
+
+@pytest.fixture(scope="session")
+def eu_life_expectancy_raw_json() -> pd.DataFrame:
+    """Fixture to load the raw life expectancy data json format"""
+    with open(FIXTURES_DIR / "eu_life_expectancy_expected.json", encoding="utf-8") as f:
+        content = f.read()
+    return pd.DataFrame(json.loads(content))
+
+
+@pytest.fixture
+def eu_life_expectancy_zip_file():
+    """Fixture to load the raw life expectancy data zip format"""
+    return "eu_life_expectancy.zip"
+
+
+@pytest.fixture
+def eu_life_expectancy_zip_file_bad_zip():
+    """Fixture to load the raw life expectancy data zip format"""
+    return "eu_life_expectancy_bad.zip"
+
+
+@pytest.fixture
+def nonexistent_file_json():
+    """Fixture to load the raw life expectancy data zip format"""
+    return "nonexistent_file.json"
+
+
+@pytest.fixture
+def non_existing_file_path_csv():
+    """Fixture to load the raw life expectancy data zip format"""
+    return "non_existing_file_path.csv"

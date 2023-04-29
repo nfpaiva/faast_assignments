@@ -1,47 +1,50 @@
-"""
-This module provides a class to clean european life expectancy data files.
-"""
+""" This module contains the DataCleaner class, which is responsible for cleaning the raw data"""
+
 from typing import List
 import logging
+from abc import ABC, abstractmethod
 import pandas as pd
 
 
-class DataCleaner:
-    """Class:
-    DataCleaner: Class responsible for cleaning european life expectancy data files.
-    """
+class CleaningStrategy(ABC):
+    """Abstract class for cleaning strategies"""
 
-    # Define variables cleaning  and filtering data
-    COMPOSED_COL = "unit,sex,age,geo\\time"
-    DECOMPOSED_COLs = ["unit", "sex", "age", "region"]
+    @abstractmethod
+    def clean(self, df_raw: pd.DataFrame) -> pd.DataFrame:
+        """Abstract method for cleaning data"""
 
-    class NoDataException(Exception):
-        """Class:
-        NoDataException: Exception raised when no data is found for a given region
-        """
 
-    def clean_data(self, df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
-        """
-        This function processes and filters a dataframe
-        with european life expectancy data over the years.
+class JSONCleaningStrategy(CleaningStrategy):
+    """Concrete class for cleaning JSON data"""
 
-        Parameters:
-        None
+    def clean(self, df_raw: pd.DataFrame) -> pd.DataFrame:
+        # Implement JSON cleaning strategy here
+        df_final = pd.DataFrame(df_raw)
+        df_final = df_final[
+            ["unit", "sex", "age", "country", "year", "life_expectancy"]
+        ]
+        df_final = df_final.rename(
+            columns={"country": "region", "life_expectancy": "value"}
+        )
 
-        Returns:
-        Just saves the processed data for Portugal and returns also pd dataframe for test fixtures
-        """
+        return df_final
+
+
+class CSVCleaningStrategy(CleaningStrategy):
+    """Concrete class for cleaning CSV data"""
+
+    def clean(self, df_raw: pd.DataFrame) -> pd.DataFrame:
         df_raw = df_raw.copy()
         # Split first column into 4 columns
-        df_raw[self.DECOMPOSED_COLs] = df_raw[self.COMPOSED_COL].str.split(
-            ",", expand=True
-        )
-        df_raw = df_raw.drop(columns=[self.COMPOSED_COL])
+        df_raw[DataCleaner.DECOMPOSED_COLs] = df_raw[
+            DataCleaner.COMPOSED_COL
+        ].str.split(",", expand=True)
+        df_raw = df_raw.drop(columns=[DataCleaner.COMPOSED_COL])
 
-        # Transform data into long format, filter out missings and region
-        df_final = pd.melt(df_raw, id_vars=self.DECOMPOSED_COLs, var_name="year")
+        # Transform data into long format, filter out missings
+        df_final = pd.melt(df_raw, id_vars=DataCleaner.DECOMPOSED_COLs, var_name="year")
 
-        # convert column data types explicitly
+        # Convert column data types explicitly
         data_types = {
             "unit": "str",
             "sex": "str",
@@ -84,14 +87,34 @@ class DataCleaner:
 
         for dtype, cols in column_groups.items():
             df_final[cols] = convert_datatypes(df_final.loc[:, cols], cols, dtype)
+        return df_final
 
-        df_final = df_final[df_final["region"] == region_filter]
-        df_final = df_final.dropna(subset=["value"])
 
-        df_final = df_final[(df_final["region"] == region_filter)]
+class DataCleaner:
+    """
+    DataCleaner: Class responsible for cleaning European life expectancy data files.
+    """
 
-        if df_final.empty:  # pragma: no cover
-            raise self.NoDataException(f"No data found for region {region_filter}")
+    # Define variables cleaning  and filtering data
+    COMPOSED_COL = "unit,sex,age,geo\\time"
+    DECOMPOSED_COLs = ["unit", "sex", "age", "region"]
 
-        logging.info("Successfully cleaned data for region== %s", region_filter)
-        return df_final.reset_index(drop=True)
+    class NoDataException(Exception):
+        """
+        NoDataException: Exception raised when no data is found for a given region
+        """
+
+    def __init__(self, cleaning_strategy: CleaningStrategy):
+        """Constructor for DataCleaner"""
+        self.cleaning_strategy = cleaning_strategy
+
+    def clean_data(self, df_raw: pd.DataFrame, region_filter: str) -> pd.DataFrame:
+        """This method cleans the raw data and filters by region"""
+        df_cleaned = self.cleaning_strategy.clean(df_raw)
+        return self.filter_by_region(df_cleaned, region_filter)
+
+    def filter_by_region(self, df: pd.DataFrame, region_filter: str) -> pd.DataFrame:
+        """This method filters the data by region and drops rows with missing values"""
+        df_filtered = df[df["region"] == region_filter]
+        df_filtered = df_filtered.dropna(subset=["value"])
+        return df_filtered.reset_index(drop=True)
