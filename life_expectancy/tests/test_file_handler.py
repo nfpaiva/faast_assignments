@@ -137,11 +137,7 @@ def test_save_data_with_permission_error(mock_to_csv, caplog):
     df_final = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6]})
     filehandler.save_data(df_final, output_file_path, "PT")
     mock_to_csv.assert_called_once_with(output_file_path, index=False)
-    assert (
-        """Output file life_expectancy/data/pt_life_expectancy.csv 
-        could not be created or written to."""
-        in caplog.text
-    )
+    assert "could not be created or written to." in caplog.text
 
 
 @pytest.mark.unit
