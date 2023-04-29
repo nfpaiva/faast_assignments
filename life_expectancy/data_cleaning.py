@@ -112,6 +112,16 @@ class DataCleaner:
     def clean_data(self, df_raw: pd.DataFrame, region_filter: Region) -> pd.DataFrame:
         """This method cleans the raw data and filters by region"""
         df_cleaned = self.cleaning_strategy.clean(df_raw)
+
+        # Get the list of countries in the cleaned data
+        countries = Region.get_actual_countries(df_cleaned, "region")
+
+        # Validate the region filter
+        if region_filter.value not in countries:
+            raise ValueError(
+                f"Invalid region: {region_filter}. Available regions: {countries}"
+            )
+
         return self.filter_by_region(df_cleaned, region_filter)
 
     def filter_by_region(self, df: pd.DataFrame, region_filter: Region) -> pd.DataFrame:
