@@ -117,8 +117,5 @@ class DataCleaner:
     def filter_by_region(self, df: pd.DataFrame, region_filter: Region) -> pd.DataFrame:
         """This method filters the data by region and drops rows with missing values"""
         df_filtered = df[df["region"] == region_filter.value]
-        print("**********")
-        print(region_filter.value)
-        print("**********")
         df_filtered = df_filtered.dropna(subset=["value"])
         return df_filtered.reset_index(drop=True)

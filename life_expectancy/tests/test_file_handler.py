@@ -31,7 +31,6 @@ def test_load_data_with_csv_strategy(mock_load_data, eu_life_expectancy_raw_expe
     mock_load_data.assert_called_with(FIXTURES_DIR / "eu_life_expectancy_raw.tsv")
 
 
-#############################################################################
 @pytest.mark.unit
 @mock.patch("life_expectancy.file_handler.ZipFileLoadingStrategy.load_data")
 def test_load_data_with_zip_strategy(mock_load_data, eu_life_expectancy_raw_json):

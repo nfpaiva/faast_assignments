@@ -25,7 +25,7 @@ def test_loading_cleaning_saving_csv(
     mock_load_data.assert_called_once_with(Path("test.csv"))
     mock_clean_data.assert_called_once_with(eu_life_expectancy_raw_expected, Region.PT)
     mock_save_data.assert_called_once_with(
-        pt_life_expectancy_expected, mock.ANY, Region.PT
+        pt_life_expectancy_expected, mock.ANY, Region.PT.value
     )
 
     assert isinstance(result, pd.DataFrame)
@@ -51,7 +51,7 @@ def test_loading_cleaning_saving_json(
     mock_load_data.assert_called_once_with(Path("test.json"))
     mock_clean_data.assert_called_once_with(eu_life_expectancy_raw_json, Region.PT)
     mock_save_data.assert_called_once_with(
-        pt_life_expectancy_expected, mock.ANY, Region.PT
+        pt_life_expectancy_expected, mock.ANY, Region.PT.value
     )
 
     assert isinstance(result, pd.DataFrame)

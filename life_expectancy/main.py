@@ -31,7 +31,7 @@ def loading_cleaning_saving(
 
     # Define output file path relative to base path
     OUTPUT_FILE_PATH = (
-        BASE_PATH / "data" / f"{str(country).lower()}_life_expectancy.csv"
+        BASE_PATH / "data" / f"{str(country.value).lower()}_life_expectancy.csv"
     )
 
     # Choose the appropriate strategy based on the input file type
