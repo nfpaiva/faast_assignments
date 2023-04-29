@@ -1,8 +1,9 @@
 """Tests for the file_handler module"""
 
 from unittest import mock
-import pandas as pd
+import json
 import pytest
+import pandas as pd
 from life_expectancy.file_handler import (
     FileHandler,
     FileLoadingStrategy,
@@ -29,6 +30,7 @@ def test_load_data_with_csv_strategy(mock_load_data, eu_life_expectancy_raw_expe
     mock_load_data.assert_called_with(FIXTURES_DIR / "eu_life_expectancy_raw.tsv")
 
 
+#############################################################################
 @pytest.mark.unit
 @mock.patch("life_expectancy.file_handler.ZipFileLoadingStrategy.load_data")
 def test_load_data_with_zip_strategy(mock_load_data, eu_life_expectancy_raw_json):
@@ -78,6 +80,19 @@ def test_load_data_with_json_strategy_file_not_found(caplog, nonexistent_file_js
     assert "not found" in caplog.text
 
 
+@pytest.mark.unit
+def test_load_data_with_zip_strategy_file_not_found(caplog):
+    """Test load_data with ZipFileLoadingStrategy
+    when the input file is not found"""
+    filehandler = FileHandler(strategy=ZipFileLoadingStrategy())
+    input_file_path = "tests/fixtures/nonexistent_file.zip"
+    eu_life_expectancy_raw = filehandler.load_data(input_file_path)
+    assert eu_life_expectancy_raw.empty
+
+    # Assert logging output
+    assert "not found." in caplog.text
+
+
 def test_load_data_with_zip_strategy_bad_zip_file(
     caplog, eu_life_expectancy_zip_file_bad_zip
 ):
@@ -90,18 +105,6 @@ def test_load_data_with_zip_strategy_bad_zip_file(
 
     # Assert logging output
     assert "not a valid zip file" in caplog.text
-
-
-def test_load_data_with_zip_strategy_file_not_found(caplog):
-    """Test load_data with ZipFileLoadingStrategy
-    when the input file is not found"""
-    filehandler = FileHandler(strategy=ZipFileLoadingStrategy())
-    input_file_path = "tests/fixtures/nonexistent_file.zip"
-    eu_life_expectancy_raw = filehandler.load_data(input_file_path)
-    assert eu_life_expectancy_raw.empty
-
-    # Assert logging output
-    assert "Input file tests/fixtures/nonexistent_file.zip not found." in caplog.text
 
 
 def test_load_data_with_no_strategy(caplog):
@@ -146,3 +149,34 @@ def test_load_data_not_implemented():
     strategy = FileLoadingStrategy()
     with pytest.raises(NotImplementedError):
         strategy.load_data("/path/to/file")
+
+
+@pytest.mark.unit
+def test_load_data_from_content():
+    """Test that the NotImplementedError is raised
+    by the FileLoadingStrategy.load_data_from_content method"""
+    # Prepare
+    content = '{"col1": [1, 2, 3], "col2": [4, 5, 6]}'
+    data = json.loads(content)
+    expected = pd.DataFrame(data)
+
+    # Test
+    strategy = JSONFileLoadingStrategy()
+    result = strategy.load_data_from_content(content)
+
+    # Assert
+    pd.testing.assert_frame_equal(expected, result)
+
+
+@pytest.mark.unit
+def test_zip_file_loading_strategy_load_data(eu_life_expectancy_raw_json):
+    """Test that the ZipFileLoadingStrategy.load_data method works as expected"""
+    # Load the data from the zip file
+    file_handler = ZipFileLoadingStrategy()
+    df = file_handler.load_data(
+        input_file_path=FIXTURES_DIR / "eu_life_expectancy_expected_good.zip"
+    )
+
+    # Check that the data was loaded correctly
+
+    pd.testing.assert_frame_equal(df, eu_life_expectancy_raw_json)

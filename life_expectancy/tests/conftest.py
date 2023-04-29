@@ -40,9 +40,9 @@ def eu_life_expectancy_raw_json() -> pd.DataFrame:
 
 
 @pytest.fixture
-def eu_life_expectancy_zip_file():
-    """Fixture to load the raw life expectancy data zip format"""
-    return "eu_life_expectancy.zip"
+def eu_life_expectancy_zip_file_good_json():
+    """Fixture to load the raw life expectancy (json) data zip format"""
+    return "eu_life_expectancy_expected_good.zip"
 
 
 @pytest.fixture
