@@ -106,31 +106,32 @@ class ZipFileLoadingStrategy(FileLoadingStrategy):
     """Class to load zip files."""
 
     def load_data(self, input_file_path: Union[str, Path]) -> pd.DataFrame:
-        try:
-            with zipfile.ZipFile(Path(input_file_path), "r") as zip_ref:
-                for file in zip_ref.namelist():
-                    file_ext = Path(file).suffix.lower()
-                    strategy: Union[
-                        CSVFileLoadingStrategy, JSONFileLoadingStrategy
-                    ] = CSVFileLoadingStrategy()
-                    if file_ext in (".csv", ".tsv"):
-                        strategy = CSVFileLoadingStrategy()
-                    elif file_ext == ".json":
-                        strategy = JSONFileLoadingStrategy()
-                    else:
-                        logging.error("Unsupported file type inside zip: %s", file_ext)
-                        return pd.DataFrame()
-
-                    with zip_ref.open(file, "r") as file_ref:
-                        file_content = file_ref.read().decode("utf-8")
-                        return strategy.load_data_from_content(file_content)
-        except FileNotFoundError:
+        if not Path(input_file_path).exists():
             logging.error("Input file %s not found.", input_file_path)
             return pd.DataFrame()
+
+        strategies = {
+            ".csv": CSVFileLoadingStrategy,
+            ".tsv": CSVFileLoadingStrategy,
+            ".json": JSONFileLoadingStrategy,
+        }
+
+        try:
+            with zipfile.ZipFile(Path(input_file_path), "r") as zip_ref:
+                file = zip_ref.namelist()[0]
+                file_ext = Path(file).suffix.lower()
+                try:
+                    strategy = strategies[file_ext]()
+                except KeyError as err:
+                    logging.error("Unsupported file type inside zip: %s", file_ext)
+                    raise err
+
+                with zip_ref.open(file, "r") as file_ref:
+                    file_content = file_ref.read().decode("utf-8")
+                    return strategy.load_data_from_content(file_content)
         except zipfile.BadZipFile:
             logging.error("Input file %s is not a valid zip file.", input_file_path)
             return pd.DataFrame()
-        return pd.DataFrame()
 
     def load_data_from_content(self, content: str) -> pd.DataFrame:
         """Load the data from a string."""
