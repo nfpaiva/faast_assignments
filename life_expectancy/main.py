@@ -37,7 +37,10 @@ def loading_cleaning_saving(
     # Choose the appropriate strategy based on the input file type
     if input_file_ext in (".csv", ".tsv"):
         filehandler = FileHandler(CSVFileLoadingStrategy())
-        cleaner = DataCleaner(CSVCleaningStrategy())
+        # Define variables cleaning  and filtering data
+        composed_col = "unit,sex,age,geo\\time"
+        decomposed_cols = ["unit", "sex", "age", "region"]
+        cleaner = DataCleaner(CSVCleaningStrategy(composed_col, decomposed_cols))
     elif input_file_ext == ".json":
         filehandler = FileHandler(JSONFileLoadingStrategy())
         cleaner = DataCleaner(JSONCleaningStrategy())

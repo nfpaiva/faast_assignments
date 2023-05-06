@@ -16,7 +16,11 @@ def test_clean_data_with_csv_strategy(
 ):
     """Run the `clean_data` function with CSVCleaningStrategy
     and compare the output to the expected output"""
-    datacleaner = DataCleaner(cleaning_strategy=CSVCleaningStrategy())
+    composed_col = "unit,sex,age,geo\\time"
+    decomposed_cols = ["unit", "sex", "age", "region"]
+    datacleaner = DataCleaner(
+        cleaning_strategy=CSVCleaningStrategy(composed_col, decomposed_cols)
+    )
     pt_life_expectancy_actual = datacleaner.clean_data(
         eu_life_expectancy_raw_expected, region_filter=Region.PT
     )

@@ -34,16 +34,20 @@ class JSONCleaningStrategy(CleaningStrategy):
 class CSVCleaningStrategy(CleaningStrategy):
     """Concrete class for cleaning CSV data"""
 
+    def __init__(self, composed_col: str, decomposed_cols: List[str]):
+        self.composed_col = composed_col
+        self.decomposed_cols = decomposed_cols
+
     def clean(self, df_raw: pd.DataFrame) -> pd.DataFrame:
         df_raw = df_raw.copy()
         # Split first column into 4 columns
-        df_raw[DataCleaner.DECOMPOSED_COLs] = df_raw[
-            DataCleaner.COMPOSED_COL
-        ].str.split(",", expand=True)
-        df_raw = df_raw.drop(columns=[DataCleaner.COMPOSED_COL])
+        df_raw[self.decomposed_cols] = df_raw[self.composed_col].str.split(
+            ",", expand=True
+        )
+        df_raw = df_raw.drop(columns=[self.composed_col])
 
         # Transform data into long format, filter out missings
-        df_final = pd.melt(df_raw, id_vars=DataCleaner.DECOMPOSED_COLs, var_name="year")
+        df_final = pd.melt(df_raw, id_vars=self.decomposed_cols, var_name="year")
 
         # Convert column data types explicitly
         data_types = {
@@ -95,10 +99,6 @@ class DataCleaner:
     """
     DataCleaner: Class responsible for cleaning European life expectancy data files.
     """
-
-    # Define variables cleaning  and filtering data
-    COMPOSED_COL = "unit,sex,age,geo\\time"
-    DECOMPOSED_COLs = ["unit", "sex", "age", "region"]
 
     class NoDataException(Exception):
         """
