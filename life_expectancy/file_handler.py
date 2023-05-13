@@ -15,7 +15,7 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO)
 
 
-class FileHandler(ABC):
+class FileHandler:
     """Class to load and save files."""
 
     def __init__(self, strategy=None):
@@ -43,7 +43,6 @@ class FileHandler(ABC):
             output_file_path,
         )
 
-    @abstractmethod
     def load_data(self, input_file_path: Union[str, Path]) -> pd.DataFrame:
         """Load the data from a file."""
         if self.strategy:
