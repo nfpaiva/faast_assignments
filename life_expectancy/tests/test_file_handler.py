@@ -2,6 +2,8 @@
 
 from unittest import mock
 import json
+from pathlib import Path
+from typing import Union
 import pytest
 import pandas as pd
 from life_expectancy.file_handler import (
@@ -146,7 +148,19 @@ def test_save_data_with_permission_error(mock_to_csv, caplog):
 @pytest.mark.unit
 def test_load_data_not_implemented():
     """Test that the NotImplementedError is raised by the FileLoadingStrategy.load_data method"""
-    strategy = FileLoadingStrategy()
+
+    class CustomLoadingStrategy(FileLoadingStrategy):
+        """Class that defines a customloadingstrategy"""
+
+        def load_data(self, input_file_path: Union[str, Path]) -> pd.DataFrame:
+            # Custom implementation or raise NotImplementedError
+            raise NotImplementedError
+
+        def load_data_from_content(self, content: str) -> pd.DataFrame:
+            # Custom implementation or raise NotImplementedError
+            raise NotImplementedError
+
+    strategy = CustomLoadingStrategy()
     with pytest.raises(NotImplementedError):
         strategy.load_data("/path/to/file")
 
